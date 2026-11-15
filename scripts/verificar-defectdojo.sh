@@ -9,19 +9,23 @@ echo ""
 DEFECTDOJO_URL="${DEFECTDOJO_URL:-http://localhost:8080}"
 API_KEY="${DEFECTDOJO_API_KEY:-tu_api_key_v2_aqui}"
 PRODUCT_ID="${PRODUCT_ID:-1}"
+PRODUCT_NAME="Notes App"
 
 import_scan() {
   local SCAN_TYPE="$1"
   local FILE_PATH="$2"
+
   if [ -f "$FILE_PATH" ]; then
     echo "  [+] Enviando $SCAN_TYPE ($FILE_PATH)..."
     RESPONSE=$(curl -s -X POST "$DEFECTDOJO_URL/api/v2/import-scan/" \
       -H "Authorization: Token $API_KEY" \
       -F "product_id=$PRODUCT_ID" \
+      -F "product_name=$PRODUCT_NAME" \
       -F "scan_type=$SCAN_TYPE" \
-      -F "engagement_name=Manual Local Scan" \
+      -F "engagement_name=CI/CD Automated Security Audits" \
       -F "auto_create_context=true" \
       -F "file=@$FILE_PATH")
+
     if echo "$RESPONSE" | grep -q "scan_type"; then
       echo "      [OK] Importación exitosa de $SCAN_TYPE"
     else
@@ -33,8 +37,9 @@ import_scan() {
 }
 
 import_scan "Semgrep JSON Report" "reports-json/semgrep-results.json"
-import_scan "Trivy Scan" "reports-json/trivy-container-results.json"
+import_scan "Trivy Scan" "reports-json/trivy-results.json"
 import_scan "Gitleaks Scan" "reports-json/gitleaks-report.json"
+import_scan "Checkov Scan" "reports-json/checkov-report.json"
 
 echo ""
 echo "=== Verificación completada ==="

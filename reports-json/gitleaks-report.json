@@ -1,0 +1,22 @@
+[
+ {
+  "Description": "Identified a pattern that may indicate AWS credentials, risking unauthorized cloud resource access and data breaches on AWS platforms.",
+  "StartLine": 1,
+  "EndLine": 1,
+  "StartColumn": 19,
+  "EndColumn": 38,
+  "Match": "AKIA1234567890ABCDEF",
+  "Secret": "AKIA1234567890ABCDEF",
+  "File": "secreto-demo.txt",
+  "SymlinkFile": "",
+  "Commit": "53c498433e631bd991b89dee2180503f327f744b",
+  "Entropy": 4.0841837,
+  "Author": "Leonardo DaEncarnacao",
+  "Email": "leoencarnacao@gmail.com",
+  "Date": "2026-10-30T18:49:18Z",
+  "Message": "Demo secreto Gitleaks",
+  "Tags": [],
+  "RuleID": "aws-access-token",
+  "Fingerprint": "53c498433e631bd991b89dee2180503f327f744b:secreto-demo.txt:aws-access-token:1"
+ }
+]
