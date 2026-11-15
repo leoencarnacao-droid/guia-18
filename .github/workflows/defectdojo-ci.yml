@@ -10,6 +10,9 @@ env:
   DOCKER_IMAGE: notes-app
   HELM_RELEASE_NAME: mi-app
   K8S_NAMESPACE: devops-portfolio
+  DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
+  DEFECTDOJO_TOKEN: ${{ secrets.DEFECTDOJO_API_KEY }}
+  PRODUCT_ID: "1"
 
 jobs:
   # FASE 1: BUILD & PACKAGE
@@ -64,7 +67,7 @@ jobs:
         with:
           image-ref: '${{ env.DOCKER_IMAGE }}:${{ github.sha }}'
           format: 'json'
-          output: 'reports-json/trivy-container-results.json'
+          output: 'reports-json/trivy-results.json'
           exit-code: '0'
       - name: Ejecutar Gitleaks CLI
         run: |
@@ -79,7 +82,7 @@ jobs:
           path: reports-json/
           retention-days: 1
 
-  # FASE 3: CENTRALIZACIÓN EN DEFECTDOJO (CON CURL)
+  # FASE 3: CENTRALIZACIÓN EN DEFECTDOJO
   defectdojo-import:
     name: "Fase 3: Centralización en DefectDojo (curl)"
     runs-on: ubuntu-latest
@@ -94,7 +97,7 @@ jobs:
 
       - name: Importar Semgrep a DefectDojo
         run: |
-          curl -s -X POST "${{ secrets.DEFECTDOJO_URL }}/api/v2/import-scan/" \
+          curl --http1.1 -s -X POST "${{ secrets.DEFECTDOJO_URL }}/api/v2/import-scan/" \
             -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
             -F "product_id=${{ secrets.PRODUCT_ID }}" \
             -F "scan_type=Semgrep JSON Report" \
@@ -104,17 +107,17 @@ jobs:
 
       - name: Importar Trivy a DefectDojo
         run: |
-          curl -s -X POST "${{ secrets.DEFECTDOJO_URL }}/api/v2/import-scan/" \
+          curl --http1.1 -s -X POST "${{ secrets.DEFECTDOJO_URL }}/api/v2/import-scan/" \
             -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
             -F "product_id=${{ secrets.PRODUCT_ID }}" \
             -F "scan_type=Trivy Scan" \
             -F "engagement_name=CI/CD Automated Security Audits" \
             -F "auto_create_context=true" \
-            -F "file=@reports-json/trivy-container-results.json"
+            -F "file=@reports-json/trivy-results.json"
 
       - name: Importar Gitleaks a DefectDojo
         run: |
-          curl -s -X POST "${{ secrets.DEFECTDOJO_URL }}/api/v2/import-scan/" \
+          curl --http1.1 -s -X POST "${{ secrets.DEFECTDOJO_URL }}/api/v2/import-scan/" \
             -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
             -F "product_id=${{ secrets.PRODUCT_ID }}" \
             -F "scan_type=Gitleaks Scan" \
